@@ -1,0 +1,354 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+
+{% block content %}
+    <main class="main-content container">
+        <section class="hero-section">
+            <div class="hero-sidebar">
+                <ul class="category-list">
+                    {% for cat in all_categories|slice:":8" %}
+                        <li>
+                            <a href="{% url 'product_list' %}?category={{ cat.id }}" style="color: inherit; text-decoration: none; display: block;">
+                                {{ cat.name }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                    <li><a href="{% url 'product_list' %}" style="color: inherit; text-decoration: none;">More category</a></li>
+                </ul>
+            </div>
+            
+            <div class="hero-banner">
+                <div class="hero-banner-content">
+                    <h3 class="subtitle">Latest trending</h3>
+                    <h2 class="title">Electronic items</h2>
+                    <a href="{% url 'product_list' %}" class="btn btn-light" style="text-decoration: none;">Learn more</a>
+                </div>
+                <img src="{% static 'shop/images/Banner-board.png' %}" alt="Electronics" class="hero-banner-img">
+            </div>
+            
+            <div class="hero-widgets">
+                <div class="user-widget widget-card">
+                    <div class="user-info">
+                        <div class="avatar"><i class="fa-solid fa-user"></i></div>
+                        <div>
+                            {% if user.is_authenticated %}
+                                <p>Hi, <b>{{ user.username }}</b></p>
+                                {% if user.is_staff %}
+                                    <p style="color: #0d6efd; font-weight: bold;">Administrator</p>
+                                {% else %}
+                                    <p>Welcome back!</p>
+                                {% endif %}
+                            {% else %}
+                                <p>Hi, user</p>
+                                <p>let's get started</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if user.is_authenticated %}
+                        {% if user.is_staff %}
+                            <a href="{% url 'add_product' %}" class="btn btn-primary btn-block" style="text-decoration: none; text-align: center; margin-bottom: 8px;">Add New Product</a>
+                            <a href="/admin/" class="btn btn-outline btn-block" style="text-decoration: none; text-align: center; margin-bottom: 8px;">Manage Store</a>
+                        {% else %}
+                            <a href="{% url 'product_list' %}" class="btn btn-primary btn-block" style="text-decoration: none; text-align: center; margin-bottom: 8px;">Shop Now</a>
+                        {% endif %}
+                        <a href="{% url 'logout_view' %}" class="btn btn-light btn-block" style="text-decoration: none; text-align: center; border: 1px solid #ddd;">Log out</a>
+                    {% else %}
+                        <a href="{% url 'signup_view' %}" class="btn btn-primary btn-block" style="text-decoration: none; text-align: center;">Join now</a>
+                        <a href="{% url 'login_view' %}" class="btn btn-outline btn-block" style="text-decoration: none; text-align: center;">Log in</a>
+                    {% endif %}
+                </div>
+                
+                <div class="discount-widget widget-card orange-bg">
+                    <p>Get US $10 off<br>with a new<br>supplier</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="deals-section card">
+            <div class="deals-header">
+                <div class="deals-title">
+                    <h3>Deals and offers</h3>
+                    <p>Hygiene equipments</p>
+                </div>
+                <div class="countdown">
+                    <div class="time-box"><span id="deal-days">04</span><small>Days</small></div>
+                    <div class="time-box"><span id="deal-hours">13</span><small>Hour</small></div>
+                    <div class="time-box"><span id="deal-mins">34</span><small>Min</small></div>
+                    <div class="time-box"><span id="deal-secs">56</span><small>Sec</small></div>
+                </div>
+
+                <script>
+                    var countDownDate = new Date().getTime() + (4 * 24 * 60 * 60 * 1000) + (13 * 60 * 60 * 1000) + (34 * 60 * 1000) + (56 * 1000);
+
+                    var x = setInterval(function() {
+                        var now = new Date().getTime();
+                        var distance = countDownDate - now;
+
+                        var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                        var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                        document.getElementById("deal-days").innerHTML = days < 10 ? '0' + days : days;
+                        document.getElementById("deal-hours").innerHTML = hours < 10 ? '0' + hours : hours;
+                        document.getElementById("deal-mins").innerHTML = minutes < 10 ? '0' + minutes : minutes;
+                        document.getElementById("deal-secs").innerHTML = seconds < 10 ? '0' + seconds : seconds;
+
+                        if (distance < 0) {
+                            clearInterval(x);
+                            document.getElementById("deal-days").innerHTML = "00";
+                            document.getElementById("deal-hours").innerHTML = "00";
+                            document.getElementById("deal-mins").innerHTML = "00";
+                            document.getElementById("deal-secs").innerHTML = "00";
+                        }
+                    }, 1000);
+                </script>
+            </div>
+            
+            <div class="deals-products">
+                {% for deal in deals %}
+                <div class="deal-item">
+                    {% if deal.image %}
+                        <img src="{{ deal.image.url }}" alt="{{ deal.name }}">
+                    {% else %}
+                        <img src="https://via.placeholder.com/300" alt="No Image">
+                    {% endif %}
+                    <p class="product-name" title="{{ deal.name }}">{{ deal.name|truncatechars:32 }}</p>
+                    <span class="discount-badge">-{{ deal.discount_percentage }}%</span>
+                </div>
+                {% empty %}
+                    <p style="padding: 20px;">No deals available right now.</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        {% if block1_cat %}
+        <section class="category-block card">
+            <div class="category-banner home-banner">
+                <h3>{{ block1_cat.name }}</h3>
+                <a href="{% url 'product_list' %}?category={{ block1_cat.id }}" class="btn btn-light btn-sm" style="text-decoration: none;">Source now</a>
+            </div>
+            <div class="category-grid">
+                {% for product in block1_prods %}
+                <div class="category-item">
+                    <div class="cat-content">
+                        <h4>{{ product.name|truncatechars:15 }}</h4> 
+                        <p>From<br>PKR {{ product.new_price }}</p>
+                    </div>
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                    {% else %}
+                        <img src="https://via.placeholder.com/300" alt="No Image">
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        {% if block2_cat %}
+        <section class="category-block card">
+            <div class="category-banner tech-banner">
+                <h3>{{ block2_cat.name }}</h3>
+                <a href="{% url 'product_list' %}?category={{ block2_cat.id }}" class="btn btn-light btn-sm" style="text-decoration: none;">Source now</a>
+            </div>
+            <div class="category-grid">
+                {% for product in block2_prods %}
+                <div class="category-item">
+                    <div class="cat-content">
+                        <h4>{{ product.name|truncatechars:15 }}</h4>
+                        <p>From<br>PKR {{ product.new_price }}</p>
+                    </div>
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                    {% else %}
+                        <img src="https://via.placeholder.com/300" alt="No Image">
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        <section class="quote-section">
+            <div class="quote-content">
+                <h2>An easy way to send<br>requests to all suppliers</h2>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing<br>elit, sed do eiusmod tempor incididunt.</p>
+            </div>
+            <div class="quote-form card">
+                <h3>Send quote to suppliers</h3>
+                <form>
+                    <input type="text" placeholder="What item you need?" class="form-control">
+                    <textarea placeholder="Type more details" class="form-control" rows="3"></textarea>
+                    <div class="form-row">
+                        <input type="text" placeholder="Quantity" class="form-control">
+                        <select class="form-control">
+                            <option>Pcs</option>
+                        </select>
+                    </div>
+                    <button type="button" class="btn btn-primary">Send inquiry</button>
+                </form>
+            </div>
+        </section>
+
+        <section class="recommended-section">
+            <h3 class="section-title">Recommended Items</h3>
+            <div class="recommended-grid">
+                {% for product in featured_products%}
+                <a href="{% url 'product_detail' product.id%}" style="text-decoration: none; color: inherit;">
+                    <div class="rec-card card">
+                        <p style="font-weight:bold">{{ product.name }}</p>
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                        {% else %}
+                            <img src="https://via.placeholder.com/300" alt="No Image">
+                        {% endif %}
+                        <div class="rec-info">
+                            <span class="price">PKR{{product.new_price}}</span>
+                        </div>
+                    </div>
+                </a>
+                {%endfor%}
+            </div>
+        </section>
+
+        <section class="services-section">
+            <h3 class="section-title">Our extra services</h3>
+            <div class="services-grid">
+                <div class="service-card card">
+                    <div class="service-img" style="background-image: url({% static 'shop/images/box.png'%});">
+                    </div>
+                    <div class="service-icon"><i class="fa-solid fa-search"></i></div>
+                    <div class="service-info">
+                        <p>Source from<br>Industry Hubs</p>
+                    </div>
+                </div>
+
+                <div class="service-card card">
+                    <div class="service-img" style="background-image: url('{% static 'shop/images/multi-clr.png'%}');">
+                    </div>
+                    <div class="service-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="-0.5 -0.5 16 16" stroke-linecap="round" stroke-linejoin="round" stroke="#0d6efd" id="Archive--Streamline-Mynaui" height="16" width="16" style="background-color: #ffffff2e">
+                        <desc>
+                        Archive Streamline Icon: https://streamlinehq.com
+                        </desc>
+                        <svg><path d="M6.5625 7.1875h1.875M12.5 5v6.875a1.25 1.25 0 0 1 -1.25 1.25H3.75a1.25 1.25 0 0 1 -1.25 -1.25V5m10.625 0V3.125a1.25 1.25 0 0 0 -1.25 -1.25H3.125a1.25 1.25 0 0 0 -1.25 1.25v1.875z" stroke-width="2"></path>
+                        </svg>
+                    </div>
+                    <div class="service-info">
+                        <p>Source from<br>Industry Hubs</p>
+                    </div>
+                </div>
+
+                <div class="service-card card">
+                    <div class="service-img" style="background-image: url('{% static 'shop/images/aeroplane.png'%}');">
+                    </div>
+                    <div class="service-icon"><i class="fa-regular fa-paper-plane"></i></div>
+                    <div class="service-info">
+                        <p>Source from<br>Industry Hubs</p>
+                    </div>
+                </div>
+
+                <div class="service-card card">
+                    <div class="service-img" style="background-image: url('{% static 'shop/images/manage.png'%}');">
+                    </div>
+                    <div class="service-icon"><i class="fa-solid fa-shield"></i></div>
+                    <div class="service-info">
+                        <p>Source from<br>Industry Hubs</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="suppliers-section">
+            <h3 class="section-title">Suppliers by region</h3>
+            <div class="suppliers-grid">
+                <div class="supplier-item">
+                    <img src="{%static 'shop/images/AE.png'%}" alt="AE">
+                    <div>
+                        <p class="country">Arabic Emirates</p>
+                        <p class="domain">shopname.ae</p>
+                    </div>
+                </div>
+                <div class="supplier-item">
+                    <img src="{%static 'shop/images/AU.png'%}" alt="AU">
+                    <div>
+                        <p class="country">Australia</p>
+                        <p class="domain">shopname.au</p>
+                    </div>
+                </div>
+                <div class="supplier-item">
+                    <img src="{%static 'shop/images/US.png'%}" alt="US">
+                    <div>
+                        <p class="country">United States</p>
+                        <p class="domain">shopname.ae</p>
+                    </div>
+                </div>
+                <div class="supplier-item">
+                    <img src="{%static 'shop/images/RU.png'%}" alt="RU">
+                    <div>
+                        <p class="country">Russia</p>
+                        <p class="domain">shopname.ru</p>
+                    </div>
+                </div>
+                <div class="supplier-item">
+                    <img src="{%static 'shop/images/IT.png'%}" alt="IT">
+                    <div>
+                        <p class="country">Italy</p>
+                        <p class="domain">shopname.it</p>
+                    </div>
+                </div>
+                <div class="supplier-item">
+                    <img src="{%static 'shop/images/DK.png'%}" alt="DK">
+                    <div>
+                        <p class="country">Denmark</p>
+                        <p class="domain">denmark.com.dk</p>
+                    </div>
+                </div>
+                <div class="supplier-item">
+                    <img src="{%static 'shop/images/FR.png'%}" alt="FR">
+                    <div>
+                        <p class="country">France</p>
+                        <p class="domain">shopname.com.fr</p>
+                    </div>
+                </div>
+                <div class="supplier-item">
+                    <img src="{%static 'shop/images/AE.png'%}" alt="AE">
+                    <div>
+                        <p class="country">Arabic Emirates</p>
+                        <p class="domain">shopname.ae</p>
+                    </div>
+                </div>
+                <div class="supplier-item">
+                    <img src="{%static 'shop/images/CN.png'%}" alt="CN">
+                    <div>
+                        <p class="country">China</p>
+                        <p class="domain">shopname.ae</p>
+                    </div>
+                </div>
+                <div class="supplier-item">
+                    <img src="{%static 'shop/images/GB.png'%}" alt="GB">
+                    <div>
+                        <p class="country">Great Britain</p>
+                        <p class="domain">shopname.co.uk</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <section class="newsletter-section">
+        <div class="container text-center">
+            <h3>Subscribe on our newsletter</h3>
+            <p>Get daily news on upcoming offers from many suppliers all over the world</p>
+            <form class="newsletter-form">
+                <div class="input-wrapper">
+                    <i class="fa-regular fa-envelope"></i>
+                    <input type="email" placeholder="Email">
+                </div>
+                <button type="button" class="btn btn-primary">Subscribe</button>
+            </form>
+        </div>
+    </section>
+{% endblock %}

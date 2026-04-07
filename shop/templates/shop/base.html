@@ -1,0 +1,186 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Furniro - eCommerce</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'shop/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <header class="header">
+        <div class="container header-container">
+            <div class="logo">
+                <div class="logo-icon"><i class="fa-solid fa-store"></i></div>
+                <span class="logo-text">
+                    <a href="{% url 'home' %}">
+                        <span class="logo-text">Brand</span>
+                    </a>
+                </span>
+            </div>
+            
+            <div class="search-bar">
+                <form action="{% url 'product_list' %}" method="GET" style="display: flex; width: 100%;">
+                    <input type="text" name="q" placeholder="Search">
+                    
+                    <select class="form-select" name="category" style="max-width: 150px; border-left: 1px solid #ddd; border-right: none; padding-left: 10px;">
+                        <option value="">All category</option>
+                        {% for cat in all_categories %}
+                            <option value="{{ cat.id }}">{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                    
+                    <button type="submit" class="btn-search">Search</button>
+                </form>
+            </div>
+            
+            <div class="header-actions">
+                <div class="action-item">
+                    <i class="fa-solid fa-user"></i>
+                    <span>Profile</span>
+                </div>
+                <div class="action-item">
+                    <i class="fa-solid fa-message"></i>
+                    <span>Message</span>
+                </div>
+                <div class="action-item">
+                    <a href="{% url 'cart' %}" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center;">
+                        <i class="fa-solid fa-heart"></i>
+                        <span style="margin-top: 5px;">Saved</span>
+                    </a>
+                </div>
+                <div class="action-item">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <a href="{% url 'cart' %}"><span>My cart {% if cart_item_count > 0 %}({{ cart_item_count }}){% endif %}</span></a>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <nav class="main-nav">
+        <div class="container nav-container">
+            <div class="nav-left">
+                <a href="{% url 'product_list' %}" style="text-decoration: none; color: inherit;">
+                    <div class="all-category" style="cursor: pointer;">
+                        <i class="fa-solid fa-bars"></i> All category
+                    </div>
+                </a>
+                <ul class="nav-links">
+                    {% for cat in all_categories|slice:":5" %}
+                        <li><a href="{% url 'product_list' %}?category={{ cat.id }}">{{ cat.name }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="nav-right">
+                <div class="nav-setting">
+                    English, USD <i class="fa-solid fa-chevron-down"></i>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    {% block content %}{% endblock %}
+    
+    <footer class="footer">
+        <div class="container footer-top">
+            <div class="footer-brand">
+                <div class="logo">
+                <div class="logo-icon"><i class="fa-solid fa-store"></i></div>
+                <span class="logo-text">
+                    <a href="{% url 'home' %}">
+                        <span class="logo-text">Brand</span>
+                    </a>
+                </span>
+            </div>Information about the company<br>gies here but now lorem ipsum is</p>
+                <div class="social-links">
+                    <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                    <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#"><i class="fa-brands fa-youtube"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-links-group">
+                <div class="footer-links">
+                    <h4>About</h4>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Find store</a></li>
+                        <li><a href="#">Categories</a></li>
+                        <li><a href="#">Blogs</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Partnership</h4>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Find store</a></li>
+                        <li><a href="#">Categories</a></li>
+                        <li><a href="#">Blogs</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Information</h4>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Money Refund</a></li>
+                        <li><a href="#">Shipping</a></li>
+                        <li><a href="#">Contact us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>For users</h4>
+                    <ul>
+                        <li><a href="#">Login</a></li>
+                        <li><a href="#">Register</a></li>
+                        <li><a href="#">Settings</a></li>
+                        <li><a href="#">My Orders</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-apps">
+                <h4>Get app</h4>
+                <a href="#" class="app-btn"><i class="fa-brands fa-apple"></i> <div><small>Download on the</small><b>App Store</b></div></a>
+                <a href="#" class="app-btn"><i class="fa-brands fa-google-play"></i> <div><small>Get it on</small><b>Google Play</b></div></a>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <div class="container bottom-container">
+                <p>&copy; 2026 Ecommerce.</p>
+                <div class="lang-selector">
+                    <img src="https://flagcdn.com/w20/us.png" alt="US"> English <i class="fa-solid fa-chevron-up"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div id="toast-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 1050; display: flex; flex-direction: column; gap: 10px;"></div>
+    </footer>
+    
+    {% if messages %}
+        <div id="custom-toast-container" style="position: fixed; top: 80px; right: 20px; z-index: 9999;">
+            {% for message in messages %}
+                <div class="custom-toast" style="background-color: #0d6efd; color: white; padding: 15px 25px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; transition: opacity 0.5s ease;">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span style="font-weight: 500;">{{ message }}</span>
+                </div>
+            {% endfor %}
+        </div>
+        <script>
+            setTimeout(function() {
+                let toasts = document.querySelectorAll('.custom-toast');
+                toasts.forEach(function(toast) {
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 500);
+                });
+            }, 2000);
+        </script>
+    {% endif %}
+    <script src="{% static 'shop/script.js' %}"></script>
+</body>
+</html>

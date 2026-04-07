@@ -1,0 +1,183 @@
+{% extends "shop/base.html" %}
+{% load static %}
+
+{% block content %}
+
+    <div class="container breadcrumb" style="padding: 15px 0;">
+        <a href="{% url 'home' %}">Home</a> <span style="margin: 0 10px;">></span>
+        <a href="{% url 'product_list' %}">Products</a> <span style="margin: 0 10px;">></span>
+        <span class="active" style="color: #0d6efd; font-weight: 500;">{{ selected_category_name }}</span>
+    </div>
+
+    <main class="container products-layout">
+        <aside class="sidebar">
+            <form method="GET" action="">
+                
+                <div class="filter-group">
+                    <div class="filter-header">Category <i class="fa-solid fa-chevron-up"></i></div>
+                    <ul class="filter-list">
+                        {% for category in categories %}
+                            <li><a href="?category={{ category.id }}">{{ category.name }}</a></li>
+                        {% empty %}
+                            <li><a href="#">No categories found</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div class="filter-group">
+                    <div class="filter-header">Brands <i class="fa-solid fa-chevron-up"></i></div>
+                    <ul class="filter-list">
+                        {% for brand in brands %}
+                            <li><label class="custom-checkbox"><input type="checkbox" name="brand" value="{{ brand.id }}"> <span>{{ brand.name }}</span></label></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div class="filter-group">
+                    <div class="filter-header">Features <i class="fa-solid fa-chevron-up"></i></div>
+                    <ul class="filter-list">
+                        {% for feature in features %}
+                            <li><label class="custom-checkbox"><input type="checkbox" name="feature" value="{{ feature.id }}"> <span>{{ feature.name }}</span></label></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div class="filter-group">
+                    <div class="filter-header">Price range <i class="fa-solid fa-chevron-up"></i></div>
+                    <div class="range-slider">
+                        <div class="progress"></div>
+                        <div class="handle left"></div>
+                        <div class="handle right"></div>
+                    </div>
+                    <div class="price-range-inputs">
+                        <div class="input-col">
+                            <label>Min</label>
+                            <input type="number" name="min_price" placeholder="0">
+                        </div>
+                        <div class="input-col">
+                            <label>Max</label>
+                            <input type="number" name="max_price" placeholder="999999">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <div class="filter-header">Condition <i class="fa-solid fa-chevron-up"></i></div>
+                    <ul class="filter-list">
+                        <li><label class="custom-radio"><input type="radio" name="condition" value="Any" checked> <span>Any</span></label></li>
+                        {% for condition in conditions %}
+                            <li><label class="custom-radio"><input type="radio" name="condition" value="{{ condition }}"> <span>{{ condition }}</span></label></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div class="filter-group">
+                    <div class="filter-header">Ratings <i class="fa-solid fa-chevron-down text-muted"></i></div>
+                </div>
+
+                <button type="submit" class="btn btn-outline btn-block" style="margin-top: 20px;">Apply Filters</button>
+            
+            </form>
+            </aside>
+
+        <div class="products-content">
+            <div class="products-top-bar card">
+                <div>{{ total_items }} items in <b>{{ selected_category_name }}</b></div>
+                <div class="top-bar-controls">
+                    <div class="view-toggles">
+                        <a href="{% url 'product_list' %}" class="toggle-btn active"><i class="fa-solid fa-list "></i></a>
+                        <a href="{% url 'product_grid' %}" class="toggle-btn"><i class="fa-solid fa-border-all"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-list list-view">
+                {% for product in products %}
+                <div class="product-item card">
+                    <div class="product-img">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                        {% else %}
+                            <img src="https://via.placeholder.com/300" alt="No Image">
+                        {% endif %}
+                    </div>
+                    <div class="product-content">
+                        <div class="content-top">
+                            <h4 class="product-title" title="{{ product.name }}">{{ product.name|truncatechars:45 }}</h4>
+                            <a href="{% url 'add_to_wishlist' product.id %}" class="custom-wishlist-btn" style="display: flex; justify-content: center; align-items: center; width: 35px; height: 35px; border: 1px solid #ddd; border-radius: 6px; color: #0d6efd; text-decoration: none; background: white; transition: 0.3s;">
+                                <i class="fa-solid fa-heart"></i>
+                            </a>
+                        </div>
+                        <div class="price-row">
+                            <div class="product-price">
+                                <span class="price">PKR{{product.new_price}}
+                                    {% if product.prev_price > 0 %}
+                                        <del style="font-size:13px; color:#8f96a5; font-weight:normal; position: relative; top:-3px;">PKR{{product.prev_price}}</del>
+                                    {%endif%}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="product-meta">
+                            <span class="rating-stars">
+                                {% for star_class in product.star_rating_classes %}
+                                    <i class="{{ star_class }}"></i>
+                                {% endfor %}
+                            </span>
+                            <span class="rating-val">{{ product.rating }}</span>
+                            <span class="dot">•</span>
+                            <span class="orders">{{product.formatted_sold}} orders</span>
+                            <span class="dot">•</span>
+                            <span class="shipping">Condition: {{product.condition}}</span>
+                        </div>
+                        <p class="product-desc">{{product.description}}</p>
+                        <a href="{% url 'product_detail' product.id %}" class="view-details">View details</a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="alert alert-warning">No products found for these filters.</div>
+                {% endfor %}
+            </div>
+            
+            <div class="pagination">
+                <div class="page-controls">
+                    {% if products.has_previous %}
+                        <a href="?page={{ products.previous_page_number }}">
+                            <button><i class="fa-solid fa-chevron-left"></i></button>
+                        </a>
+                    {% endif %}
+                    
+                    {% for num in products.paginator.page_range %}
+                        {% if products.number == num %}
+                            <button class="active">{{ num }}</button>
+                        {% else %}
+                            <a href="?page={{ num }}">
+                                <button>{{ num }}</button>
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if products.has_next %}
+                        <a href="?page={{ products.next_page_number }}">
+                            <button><i class="fa-solid fa-chevron-right"></i></button>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <section class="newsletter-section">
+        <div class="container text-center">
+            <h3>Subscribe on our newsletter</h3>
+            <p>Get daily news on upcoming offers from many suppliers all over the world</p>
+            <form class="newsletter-form">
+                <div class="input-wrapper">
+                    <i class="fa-regular fa-envelope"></i>
+                    <input type="email" placeholder="Email">
+                </div>
+                <button type="button" class="btn btn-primary">Subscribe</button>
+            </form>
+        </div>
+    </section>
+
+{% endblock %}

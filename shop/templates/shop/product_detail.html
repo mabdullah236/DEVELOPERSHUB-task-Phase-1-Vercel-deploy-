@@ -1,0 +1,255 @@
+{% extends "shop/base.html" %}
+{% load static %}
+
+{% block content %}
+    <div class="container breadcrumb" style="padding: 15px 0;">
+        <a href="{% url 'home' %}">Home</a> <span style="margin: 0 10px;">></span>
+        <a href="{% url 'product_list' %}?category={{ product.category.id }}">{{ product.category.name }}</a> <span style="margin: 0 10px;">></span>
+        <span class="active" style="color: #0d6efd; font-weight: 500;">{{ product.name }}</span>
+    </div>
+
+    <main class="container">
+        <div class="card product-overview">
+            <div class="overview-gallery">
+                <div class="main-image">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                    {% else %}
+                        <img src="https://via.placeholder.com/300" alt="No Image">
+                    {% endif %}
+                </div>
+                <div class="thumbnail-list">
+                    <div class="thumb active">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                        {% else %}
+                            <img src="https://via.placeholder.com/300" alt="No Image">
+                        {% endif %}
+                    </div>
+                    {% for img in product.gallery_images.all %}
+                        <div class="thumb">
+                            {% if img.image %}
+                                <img src="{{ img.image.url }}" alt="{{ product.name }}">
+                            {% else %}
+                                <img src="https://via.placeholder.com/300" alt="No Image">
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="overview-info">
+                {% if product.stock > 0 %}
+                    <div class="stock-status text-success" style="color:green"><i class="fa-solid fa-check"></i> In stock ({{product.stock}})</div>
+                {% else %}
+                    <div class="stock-status text-danger" style="color:red"><i class="fa-solid fa-xmark"></i> Out of stock</div>
+                {% endif %}
+                
+                <h1 class="product-title-main" title="{{ product.name }}">{{ product.name|truncatechars:45 }}</h1>
+
+                <div class="product-stats">
+                            <span class="rating-stars">
+                                {% for star_class in product.star_rating_classes %}
+                                    <i class="{{ star_class }}"></i>
+                                {% endfor %}
+                            </span>
+                            <span class="rating-val">{{ product.rating }}</span>
+                    <span class="dot">•</span>
+                    <span class="reviews"><i class="fa-solid fa-message text-muted"></i> {{ product.reviews_count }} reviews</span>
+                    <span class="dot">•</span>
+                    <span class="sold"><i class="fa-solid fa-basket-shopping text-muted"></i> {{ product.formatted_sold }} sold</span>
+                </div>
+                
+                <div class="price-breakdown">
+                    <div class="price-col">
+                        <div class="price text-danger">PKR {{product.new_price}}</div>
+                    </div>
+                </div>
+                
+                <div class="product-attributes">
+                    {% for spec in product.specifications.all|slice:":4" %}
+                        <div class="attr-row">
+                            <span class="attr-label">{{ spec.key }}:</span>
+                            <span class="attr-value">{{ spec.value }}</span>
+                        </div>
+                    {% empty %}
+                        <div class="attr-row">
+                            <span class="attr-label">Condition:</span>
+                            <span class="attr-value">{{ product.condition }}</span>
+                        </div>
+                        <div class="attr-row">
+                            <span class="attr-label">Brand:</span>
+                            <span class="attr-value">{{ product.brand.name|default:"N/A" }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="overview-seller card">
+                {% if product.supplier %}
+                    <div class="seller-header">
+                        <div class="seller-avatar">{{ product.supplier.name|make_list|first|upper }}</div>
+                        <div class="seller-name">
+                            <div class="text-muted">Supplier</div>
+                            <b>{{ product.supplier.name }}</b>
+                        </div>
+                    </div>
+                    <div class="seller-info-list" style="margin-top: 15px; margin-bottom: 25px;">
+                        <div class="info-row">
+                            <img src="https://flagcdn.com/w20/{{ product.supplier.country_code|lower }}.png" alt="{{ product.supplier.country_code }}"> 
+                            {{ product.supplier.location }}, {{ product.supplier.country }}
+                        </div>
+                        
+                        {% if product.supplier.is_verified %}
+                            <div class="info-row" style="color:green"><i class="fa-solid fa-check"></i>Verified Seller</div>
+                        {%else%}
+                            <div class="info-row" style="color:red"><i class="fa-solid fa-xmark"></i>Not Verified(Standand Seller)</div>
+                        {% endif %}
+                        <div class="info-row"><i class="fa-solid fa-globe text-muted"></i> Worldwide shipping</div>
+                    </div>
+                {% else %}
+                    <div class="seller-header">
+                        <div class="seller-avatar">F</div>
+                        <div class="seller-name">
+                            <div class="text-muted">Supplier</div>
+                            <b>Furniro Official</b>
+                        </div>
+                    </div>
+                {% endif %}
+                
+                <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary btn-block" style="text-decoration:none; text-align:center;">Add to Cart</a>
+                <button class="btn btn-outline btn-block" style="margin-bottom: 0;">Seller's profile</button>
+                <div class="save-later" style="margin-top: 15px; text-align: center;">
+                    <a href="{% url 'add_to_wishlist' product.id %}" style="color: #0d6efd; text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-heart"></i> Save for later
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="detail-columns">
+            <div class="detail-main card">
+                <div class="detail-tabs">
+                    <div class="tab active" onclick="switchTab('tab-desc', this)">Description</div>
+                    <div class="tab" onclick="switchTab('tab-reviews', this)">Reviews</div>
+                    <div class="tab" onclick="switchTab('tab-shipping', this)">Shipping</div>
+                    <div class="tab" onclick="switchTab('tab-seller', this)">About seller</div>
+                </div>
+                
+                <div id="tab-desc" class="tab-content" style="display: block;">
+                    <p>{{product.description}}</p>
+                    <table class="detail-table">
+                        {% for spec in product.specifications.all %}
+                        <tr>
+                            <td>{{ spec.key }}</td>
+                            <td>{{ spec.value }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                    <ul class="detail-features">
+                        {% for feature in product.features.all %}
+                            <li><i class="fa-solid fa-check text-muted"></i> {{ feature.name }}</li>
+                        {% empty %}
+                            <li><i class="fa-solid fa-check text-muted"></i> Standard product features</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div id="tab-reviews" class="tab-content" style="display: none; padding: 20px 0;">
+                    <h4>Customer Reviews</h4>
+                    <p class="text-muted">No reviews available for this product yet. Be the first to review!</p>
+                </div>
+
+                <div id="tab-shipping" class="tab-content" style="display: none; padding: 20px 0;">
+                    <h4>Shipping Information</h4>
+                    <p><i class="fa-solid fa-truck text-primary"></i> <b>Standard Shipping:</b> 3 - 5 Business days.</p>
+                    <p><i class="fa-solid fa-globe text-primary"></i> <b>International:</b> Available globally via DHL and FedEx.</p>
+                </div>
+
+                <div id="tab-seller" class="tab-content" style="display: none; padding: 20px 0;">
+                    {% if product.supplier %}
+                        <h4>About {{ product.supplier.name }}</h4>
+                        <p>Based in {{ product.supplier.location }}, {{ product.supplier.country }}.</p>
+                        {% if product.supplier.is_verified %}
+                            <p>This supplier is fully verified and guarantees 100% authentic products.</p>
+                        {%else%}
+                            <p>This is a standard supplier. We recommend checking reviews before purchasing.</p>
+                        {%endif%}
+                    {% else %}
+                        <h4>Furniro Official</h4>
+                        <p>This product is sold and shipped directly by Furniro.</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="detail-sidebar card">
+                <h3 class="sidebar-title">You may like</h3>
+                <div class="like-list">
+                    {% for p in like %}
+                        <a href="{% url 'product_detail' p.id %}" style="text-decoration: none; color: inherit;">
+                            <div class="like-item">
+                                <div class="like-img">
+                                    {% if p.image %}
+                                        <img src="{{ p.image.url }}" alt="{{ p.name }}">
+                                    {% else %}
+                                        <img src="https://via.placeholder.com/300" alt="No Image">
+                                    {% endif %}
+                                </div>
+                                <div class="like-info">
+                                    <h4>{{p.name}}</h4>
+                                    <div class="price text-muted">PKR {{p.price}}</div>
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="related-products card">
+            <h3 class="section-title" style="padding: 20px 20px 0; margin-bottom: 20px;">Related products</h3>
+            <div class="related-grid">
+                {% for p in related_products %}
+                    <a href="{% url 'product_detail' p.id %}" style="text-decoration: none; color: inherit;">
+                        <div class="related-item">
+                            <div class="rel-img">
+                                {% if p.image %}
+                                    <img src="{{ p.image.url }}" alt="{{ p.name }}">
+                                {% else %}
+                                    <img src="https://via.placeholder.com/300" alt="No Image">
+                                {% endif %}
+                            </div>
+                            <div class="rel-title">{{p.name}}</div>
+                            <div class="rel-price text-muted">PKR {{p.price}}</div>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="discount-banner">
+            <div class="banner-content">
+                <h2>Super discount on more than 100 USD</h2>
+                <p>Have you ever finally just write dummy info</p>
+            </div>
+            <a href="{% url 'product_list' %}" class="btn btn-warning banner-btn" style="text-decoration:none;">Shop now</a>
+        </div>
+    </main>
+
+    <script>
+        function switchTab(tabId, clickedElement) {
+            var contents = document.getElementsByClassName('tab-content');
+            for (var i = 0; i < contents.length; i++) {
+                contents[i].style.display = 'none';
+            }
+            
+            var tabs = document.querySelectorAll('.detail-tabs .tab');
+            for (var i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove('active');
+            }
+            
+            document.getElementById(tabId).style.display = 'block';
+            clickedElement.classList.add('active');
+        }
+    </script>
+{% endblock %}

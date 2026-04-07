@@ -1,0 +1,154 @@
+{% extends "shop/base.html" %}
+{% load static %}
+
+{% block content %}
+    <main class="container mt-4 mb-5">
+        <h2 class="page-title mb-4" style="font-size: 24px; font-weight: 600;">My cart ({{ total_qty }})</h2>
+        
+        <div class="cart-layout">
+            <div class="cart-main">
+                <div class="card cart-items-card">
+                    
+                    {% for item in cart_items %}
+                    <div class="cart-item">
+                        <div class="cart-item-img">
+                            {% if item.product.image %}
+                                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                            {% else %}
+                                <img src="https://via.placeholder.com/300" alt="No Image">
+                            {% endif %}
+                        </div>
+                        <div class="cart-item-info">
+                            <div class="cart-item-title-row" style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <h3 class="cart-item-title" style="margin: 0; padding-right: 15px; font-weight:bold" title="{{ item.product.name }}">{{ item.product.name|truncatechars:45 }}</h3>
+                            <div style="text-align: right;">
+                                <div class="cart-item-price" style="font-size: 18px; font-weight: 600;">PKR {{ item.product.new_price }}</div>
+                                {% if item.quantity > 1 %}
+                                    <div class="text-muted" style="font-size: 13px; margin-top: 4px;">
+                                        Subtotal: PKR {{ item.subtotal }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                            <div class="cart-item-meta text-muted mb-2">
+                                Condition: {{ item.product.condition }}<br>
+                                Seller: {{ item.product.supplier.name|default:"Furniro Official" }}
+                            </div>
+                            <div class="cart-item-actions">
+                                <div class="btn-group-cart">
+                                    <a href="{% url 'remove_from_cart' item.id %}" onclick="window.location.href=this.href; return false;" class="btn btn-outline btn-sm text-danger" style="text-decoration:none;">Remove</a>
+                                    </div>
+                                <div class="qty-control" style="display: flex; align-items: center; gap: 8px;">
+                                    <span>Qty:</span>
+                                    <input type="number" 
+                                        value="{{ item.quantity }}" 
+                                        min="1" 
+                                        max="{{ item.product.stock }}" 
+                                        onchange="window.location.href='{% url 'update_cart' item.id %}?qty=' + this.value;"
+                                        style="width: 60px; padding: 5px; border-radius: 4px; border: 1px solid #ccc; outline: none; text-align: center;">
+                                    <span style="font-size: 12px; color: #888;">({{ item.product.stock }} max)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                        <div style="padding: 40px; text-align: center; color: #777;">
+                            <i class="fa-solid fa-cart-shopping fa-3x" style="margin-bottom: 15px; color: #ddd;"></i>
+                            <h4>Your cart is empty!</h4>
+                            <p>Browse our categories and discover our best deals!</p>
+                        </div>
+                    {% endfor %}
+                    <div class="cart-footer-actions">
+                        <a href="{% url 'product_list' %}" class="btn btn-primary" style="text-decoration:none;"><i class="fa-solid fa-arrow-left"></i> Back to shop</a>
+                    </div>
+                </div>
+
+                <div class="features-row">
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fa-solid fa-lock"></i></div>
+                        <div class="feature-text">
+                            <b>Secure payment</b>
+                            <div class="text-muted">Have you ever finally just</div>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fa-solid fa-message"></i></div>
+                        <div class="feature-text">
+                            <b>Customer support</b>
+                            <div class="text-muted">Have you ever finally just</div>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fa-solid fa-truck"></i></div>
+                        <div class="feature-text">
+                            <b>Free delivery</b>
+                            <div class="text-muted">Have you ever finally just</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="cart-sidebar">
+                <div class="card p-3 mb-3">
+                    <div class="font-weight-500 mb-2" style="font-size: 15px;">Have a coupon?</div>
+                    <div class="coupon-input">
+                        <input type="text" placeholder="Add coupon" class="form-control">
+                        <button class="btn btn-outline text-primary">Apply</button>
+                    </div>
+                </div>
+                
+                <div class="card p-3 shadow-sm">
+                    <div class="summary-row">
+                        <span class="text-muted">Subtotal:</span>
+                        <b>PKR {{ subtotal }}</b>
+                    </div>
+                    <div class="summary-row">
+                        <span class="text-muted">Discount:</span>
+                        <b class="text-danger">- PKR {{ discount }}</b>
+                    </div>
+                    <div class="summary-row">
+                        <span class="text-muted">Tax:</span>
+                        <b class="text-success">+ PKR {{ tax }}</b>
+                    </div>
+                    
+                    <hr class="my-3">
+                    
+                    <div class="summary-row summary-total">
+                        <b>Total:</b>
+                        <b style="font-size: 20px;">PKR {{ total|floatformat:2 }}</b>
+                    </div>
+                    
+                    <button class="btn btn-success btn-block btn-lg mt-3" style="width: 100%; border-radius: 6px;">Checkout</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card p-4 mt-4 mb-4 bg-white">
+            <h3 class="font-weight-600 mb-4" style="font-size: 18px;">Saved for later ({{ saved_items.count }})</h3>
+            <div class="saved-grid">
+                {% for save in saved_items %}
+                <div class="saved-item">
+                    <div class="saved-img">
+                        {% if save.product.image %}
+                            <img src="{{ save.product.image.url }}" alt="{{ save.product.name }}">
+                        {% else %}
+                            <img src="https://via.placeholder.com/300" alt="No Image">
+                        {% endif %}
+                    </div>
+                    <div class="saved-price" style="font-weight:500; font-size:15px">PKR {{ save.product.new_price }}</div>
+                    <div class="saved-title text-muted" style="height: 40px; overflow: hidden; font-weight:bold">{{ save.product.name|truncatechars:40 }}</div>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <a href="{% url 'move_to_cart' save.id %}" class="btn btn-outline btn-sm btn-move text-primary" style="text-decoration: none;">
+                            <i class="fa-solid fa-cart-shopping"></i> Move to cart
+                        </a>
+                        <a href="{% url 'remove_from_wishlist' save.id %}" class="btn btn-outline btn-sm text-danger" style="text-decoration: none;"><i class="fa-solid fa-trash"></i></a>
+                    </div>
+                </div>
+                {% empty %}
+                    <p class="text-muted">You haven't saved any items for later yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </main>
+{% endblock %}

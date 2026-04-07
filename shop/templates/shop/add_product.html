@@ -1,0 +1,248 @@
+{% extends "shop/base.html" %}
+{% load static %}
+
+{% block content %}
+<main class="container" style="margin-top: 40px; margin-bottom: 60px;">
+    <div class="card" style="max-width: 900px; margin: 0 auto; padding: 40px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-radius: 12px; border: none;">
+        <h2 style="margin-bottom: 20px; color: #0d6efd; font-weight: 600;"><i class="fa-solid fa-box-open"></i> Add New Product</h2>
+        <p class="text-muted">Fill in all details. Use the '+' buttons to add new categories or brands on the fly.</p>
+        
+        {% if messages %}
+            <div style="margin-bottom: 20px;">
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %}" style="padding: 10px; border-radius: 6px;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <hr style="margin-bottom: 30px; border-top: 1px solid #eee;">
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label style="font-weight: 500; margin-bottom: 8px; display: block;">{{ form.name.label }} *</label>
+                    {{ form.name }}
+                    {% if form.name.errors %} <small style="color: red;">{{ form.name.errors|striptags }}</small> {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label style="font-weight: 500; margin-bottom: 8px; display: block;">{{ form.category.label }} *</label>
+                    <div style="display: flex; gap: 8px;">
+                        {{ form.category }}
+                        <button type="button" class="btn btn-outline" style="border: 1px solid #ddd; padding: 0 12px; border-radius: 6px; color: #888; background: white;" onclick="openModal('categoryModal')">+</button>
+                    </div>
+                    {% if form.category.errors %} <small style="color: red;">{{ form.category.errors|striptags }}</small> {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label style="font-weight: 500; margin-bottom: 8px; display: block;">{{ form.brand.label }}</label>
+                    <div style="display: flex; gap: 8px;">
+                        {{ form.brand }}
+                        <button type="button" class="btn btn-outline" style="border: 1px solid #ddd; padding: 0 12px; border-radius: 6px; color: #888; background: white;" onclick="openModal('brandModal')">+</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label style="font-weight: 500; margin-bottom: 8px; display: block;">{{ form.supplier.label }}</label>
+                    <div style="display: flex; gap: 8px;">
+                        {{ form.supplier }}
+                        <button type="button" class="btn btn-outline" style="border: 1px solid #ddd; padding: 0 12px; border-radius: 6px; color: #888; background: white;" onclick="openModal('supplierModal')">+</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label style="font-weight: 500; margin-bottom: 8px; display: block;">{{ form.condition.label }}</label>
+                    {{ form.condition }}
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: 500; margin-bottom: 8px; display: block;">{{ form.stock.label }} *</label>
+                    {{ form.stock }}
+                </div>
+
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label style="font-weight: 500; margin-bottom: 8px; display: block;">{{ form.features.label }}</label>
+                    <div style="display: flex; gap: 8px;">
+                        {{ form.features }}
+                        <button type="button" class="btn btn-outline" style="border: 1px solid #ddd; padding: 0 12px; border-radius: 6px; color: #888; background: white;" onclick="openModal('featureModal')">+</button>
+                    </div>
+                </div>
+
+                <div style="grid-column: 1 / -1; background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin-top: 10px;">
+                    <h4 style="margin-bottom: 15px; color: #666; font-size: 16px;">Pricing Details</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label style="font-size: 13px; font-weight: 500;">Previous Price</label>
+                            {{ form.prev_price }}
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size: 13px; font-weight: 500;">New Price *</label>
+                            {{ form.new_price }}
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size: 13px; font-weight: 500;">Discount (%)</label>
+                            {{ form.discount_percentage }}
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size: 13px; font-weight: 500;">Tax (%)</label>
+                            {{ form.tax_percentage }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label style="font-weight: 500; margin-bottom: 8px; display: block;">Main Cover Image *</label>
+                    {{ form.image }}
+                </div>
+                
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label style="font-weight: 500; margin-bottom: 8px; display: block;">{{ form.description.label }} *</label>
+                    {{ form.description }}
+                </div>
+
+                <div class="form-group">
+                    <label style="font-weight: 500; margin-bottom: 8px; display: block;">Sold Count (Fake/Real)</label>
+                    {{ form.sold_count }}
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: 500; margin-bottom: 8px; display: block;">Rating (e.g., 4.5)</label>
+                    {{ form.rating }}
+                </div>
+                <div class="form-group" style="grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; padding: 15px; background: #eef5ff; border-radius: 6px; border: 1px solid #cce0ff;">
+                    {{ form.is_featured }}
+                    <label style="font-weight: 600; cursor: pointer; margin: 0; color: #0056b3;">Mark as Featured Product (Shows on Homepage)</label>
+                </div>
+
+                <div class="form-group" style="grid-column: 1 / -1; border: 2px dashed #0d6efd; padding: 20px; border-radius: 8px; background: #fafbfc; text-align: center;">
+                    <label style="font-weight: 600; margin-bottom: 10px; display: block; color: #0d6efd; font-size: 16px;">
+                        <i class="fa-regular fa-images"></i> Product Gallery (Upload Multiple Images)
+                    </label>
+                    <input type="file" name="gallery_images" multiple class="form-control" accept="image/*" style="max-width: 400px; margin: 0 auto;">
+                    <small class="text-muted mt-2 d-block">Hold CTRL (or CMD) to select multiple extra images for the product detail page.</small>
+                </div>
+
+                <div class="form-group" style="grid-column: 1 / -1; background: #fdfdfd; padding: 20px; border-radius: 8px; border: 1px solid #eee;">
+                    <label style="font-weight: 600; margin-bottom: 15px; display: block; color: #444; font-size: 16px;">
+                        <i class="fa-solid fa-list-check"></i> Product Specifications
+                    </label>
+                    
+                    <div id="specs-container">
+                        <div style="display: flex; gap: 10px; margin-bottom: 10px;" class="spec-row">
+                            <input type="text" name="spec_keys[]" class="form-control" placeholder="Key (e.g. Color, Material, RAM)">
+                            <input type="text" name="spec_values[]" class="form-control" placeholder="Value (e.g. Black, Cotton, 8GB)">
+                            <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()" style="padding: 0 15px;">&times;</button>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addSpecRow()" style="margin-top: 10px; border-style: dashed;">
+                        + Add Another Specification Row
+                    </button>
+                </div>
+
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-lg" style="margin-top: 40px; width: 100%; font-size: 18px; font-weight: 600; padding: 15px;"> Save Completely to Store</button>
+        </form>
+    </div>
+</main>
+
+<style>
+    .custom-modal-overlay {
+        display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;
+    }
+    .custom-modal-content {
+        background: white; padding: 30px; border-radius: 12px; max-width: 450px; width: 100%; box-shadow: 0 4px 15px rgba(0,0,0,0.2); animation: slideDown 0.3s ease-out;
+    }
+    .custom-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; color: #0d6efd;}
+    .close-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: #888; }
+    .btn-block-modal { width: 100%; padding: 10px; margin-top: 20px;}
+    @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+</style>
+
+<div id="categoryModal" class="custom-modal-overlay">
+    <div class="custom-modal-content">
+        <div class="custom-modal-header"><h3>Add Category</h3><button onclick="closeModal('categoryModal')" class="close-btn">&times;</button></div>
+        <form id="catForm">{% csrf_token %}{{ cat_form.as_p }}</form>
+        <button type="button" class="btn btn-primary btn-block-modal" onclick="submitModalForm('categoryModal', 'catForm', '{% url 'add_category_ajax' %}', 'id_category')">Add Category</button>
+    </div>
+</div>
+
+<div id="brandModal" class="custom-modal-overlay">
+    <div class="custom-modal-content">
+        <div class="custom-modal-header"><h3>Add Brand</h3><button onclick="closeModal('brandModal')" class="close-btn">&times;</button></div>
+        <form id="brandForm">{% csrf_token %}{{ brand_form.as_p }}</form>
+        <button type="button" class="btn btn-primary btn-block-modal" onclick="submitModalForm('brandModal', 'brandForm', '{% url 'add_brand_ajax' %}', 'id_brand')">Add Brand</button>
+    </div>
+</div>
+
+<div id="supplierModal" class="custom-modal-overlay">
+    <div class="custom-modal-content" style="max-width: 500px;">
+        <div class="custom-modal-header"><h3>Add Supplier</h3><button onclick="closeModal('supplierModal')" class="close-btn">&times;</button></div>
+        <form id="suppForm">{% csrf_token %}{{ supplier_form.as_p }}</form>
+        <button type="button" class="btn btn-primary btn-block-modal" onclick="submitModalForm('supplierModal', 'suppForm', '{% url 'add_supplier_ajax' %}', 'id_supplier')">Add Supplier</button>
+    </div>
+</div>
+
+<div id="featureModal" class="custom-modal-overlay">
+    <div class="custom-modal-content">
+        <div class="custom-modal-header"><h3>Add Feature</h3><button onclick="closeModal('featureModal')" class="close-btn">&times;</button></div>
+        <form id="featForm">{% csrf_token %}{{ feature_form.as_p }}</form>
+        <button type="button" class="btn btn-primary btn-block-modal" onclick="submitModalForm('featureModal', 'featForm', '{% url 'add_feature_ajax' %}', 'id_features', true)">Add Feature</button>
+    </div>
+</div>
+
+<script>
+    function openModal(modalId) { document.getElementById(modalId).style.display = 'flex'; }
+    function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
+
+    function submitModalForm(modalId, formId, url, dropdownId, isMany = false) {
+        const form = document.getElementById(formId);
+        const formData = new FormData(form);
+
+        fetch(url, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const dropdown = document.getElementById(dropdownId);
+                const option = document.createElement('option');
+                option.value = data.id;
+                option.text = data.name;
+                option.selected = true;
+                dropdown.add(option);
+
+                alert("Added successfully.");
+                closeModal(modalId);
+                form.reset();
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert("Something went wrong. Please try again.");
+        });
+    }
+
+    function addSpecRow() {
+        const container = document.getElementById('specs-container');
+        const row = document.createElement('div');
+        row.style.cssText = 'display: flex; gap: 10px; margin-bottom: 10px;';
+        row.innerHTML = `
+            <input type="text" name="spec_keys[]" class="form-control" placeholder="Key (e.g. Color, RAM)">
+            <input type="text" name="spec_values[]" class="form-control" placeholder="Value (e.g. Black, 8GB)">
+            <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()" style="padding: 0 15px;">&times;</button>
+        `;
+        container.appendChild(row);
+    }
+</script>
+{% endblock %}
