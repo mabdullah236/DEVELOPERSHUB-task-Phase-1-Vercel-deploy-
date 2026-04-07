@@ -1,12 +1,6 @@
 ```markdown
 # Full-Stack E-Commerce Platform
 
-![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)
-![Django](https://img.shields.io/badge/Django-6.0.2-092E20.svg)
-![PostgreSQL](https://img.shields.io/badge/Supabase-Database-3ECF8E.svg)
-![Cloudinary](https://img.shields.io/badge/Cloudinary-Media_Storage-3448C5.svg)
-![Vercel](https://img.shields.io/badge/Vercel-Deployed-000000.svg)
-
 A robust, production-ready E-Commerce web application built with Django. This project features a fully dynamic frontend synced with a customized Django Admin panel, a serverless cloud database architecture, and secure media storage. 
 
 Developed as an internship task for **DEVELOPERSHUB**.
